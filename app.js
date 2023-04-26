@@ -1,10 +1,12 @@
 const express = require("express");
+const mongoose = require("mongoose");
 const app = express();
 const bodyParser = require("body-parser");
+
 const feedRoutes = require("./routes/feed");
+require("dotenv").config();
 
 app.use(bodyParser.json());
-
 
 app.use((req, res, next) => {
     res.setHeader("Access-Control-Allow-Origin", "*");
@@ -15,6 +17,11 @@ app.use((req, res, next) => {
 
 app.use("/feed", feedRoutes);
 
-app.listen(8080, () => {
-    console.log("server on.");
-})
+mongoose
+    .connect(process.env.MONGO_DB_URI)
+    .then(() => {
+        app.listen(8080, () => {
+            console.log("server on.");
+        })
+}).catch(err => console.log(err))
+
