@@ -1,34 +1,60 @@
+const Post = require("../models/post");
+
 const { validationResult } = require("express-validator");
 
-let _id = 1;
-
-const posts = [
-    {
-        _id: '1',
-        creator: { name: "Grayson" },
-        title: "The First Post", 
-        content: "This is the first post, say hi.",
-        imageUrl: "images/ts.png",
-        createdAt: new Date()
-    }
-]
-
 exports.getPosts = (req, res, next) => {
-    res.json({posts});
+    Post.find().then(posts => {
+        if(!posts) {
+            const error = new Error("");
+            error.statusCode = 404;
+            throw error;
+        }
+        res.status(200).json({posts});    
+        
+    }).catch(err => {
+        if(!err.statusCode)
+            err.statusCode = 500;
+        
+        next(err);
+    });
+  
+};
+
+exports.getPost = async (req, res, next) => {
+    const postId = req.params.postId;
+    try {
+        const post = await Post.findById(postId);
+        if(!post) {
+            let error = new Error("Post not found.");
+            error.statusCode = 404;
+            throw error;
+        }
+        res.status(200).json({message: 'Post fetched.', post});
+    } catch (error) {
+        if(!error.statusCode)
+            error.statusCode = 500;
+        next(error);
+    }
 };
 
 exports.createPost = (req, res, next) => {
+    const errors = validationResult(req);
     const { title, content } = req.body;
     if (!errors.isEmpty()) {
-        return res.status(422).json({
-            message: "Validation failed, entered data is incorrect.",
-            errors: errors.array()
-        })
+        let erro = new Error("Validation failed, entered data is incorrect.");
+        erro.statusCode = 422;
+        throw erro;
     }
-    const errors = validationResult(req);
-
-    res.status(201).json({
-        message: "Post created successfully!",
-        post: { _id: _id += 1, title, content, creator: { name: "Grayson" }, createdAt: new Date()}
-    })
+    const post = new Post({title, content, imageUrl: 'images/tst.png', creator: {name: "Glaybson"}});
+    post.save().then(result => {
+        res.status(201).json({
+            message: "Post created successfully!",
+            post: result
+        })
+    }).catch(err => {
+        if(!err.statusCode) {
+            err.statusCode = 500;
+        }
+        next(err);
+    });
 };
