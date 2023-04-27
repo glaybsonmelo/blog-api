@@ -3,11 +3,34 @@ const path = require("path");
 const mongoose = require("mongoose");
 const app = express();
 const bodyParser = require("body-parser");
-
+const multer = require("multer");
 const feedRoutes = require("./routes/feed");
 require("dotenv").config();
 
+const fileStorage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, "images");
+    },
+    filename: (req, file, cb) => {
+        cb(null, new Date().toISOString + file.originalname)
+    }
+})
+
+const filter = (req, file, cb) => {
+    if(
+        file.mimetype === 'image/png' ||
+        file.mimetype === 'image/jpg' || 
+        file.mimetype === 'image/jpeg'
+    ) 
+        return cb(null, true)
+    
+    cb(null, false)
+}
+
 app.use(bodyParser.json());
+app.use(multer({
+    storage: fileStorage, fileFilter: filter}
+    ).single('image'))
 app.use("/images", express.static(path.join(__dirname, 'images')))
 
 app.use((req, res, next) => {

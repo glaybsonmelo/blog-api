@@ -4,13 +4,7 @@ const { validationResult } = require("express-validator");
 
 exports.getPosts = (req, res, next) => {
     Post.find().then(posts => {
-        if(!posts) {
-            const error = new Error("");
-            error.statusCode = 404;
-            throw error;
-        }
-        res.status(200).json({posts});    
-        
+        res.status(200).json({message: "Fetched posts successfully.",posts});    
     }).catch(err => {
         if(!err.statusCode)
             err.statusCode = 500;
@@ -38,14 +32,24 @@ exports.getPost = async (req, res, next) => {
 };
 
 exports.createPost = (req, res, next) => {
+
     const errors = validationResult(req);
     const { title, content } = req.body;
+
     if (!errors.isEmpty()) {
         let erro = new Error("Validation failed, entered data is incorrect.");
         erro.statusCode = 422;
         throw erro;
     }
-    const post = new Post({title, content, imageUrl: 'images/tst.png', creator: {name: "Glaybson"}});
+
+    if (!req.file) {
+        const error = new Error("No image privided.");
+        error.statusCode = 422;
+        throw error;
+    }
+    const imageUrl = req.file.path;
+
+    const post = new Post({title, content, imageUrl, creator: {name: "Glaybson"}});
     post.save().then(result => {
         res.status(201).json({
             message: "Post created successfully!",
