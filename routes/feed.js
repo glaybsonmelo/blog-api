@@ -18,5 +18,13 @@ router.post("/post", [
         .isLength({ min: 5, max: 2048 })
 ], feedController.createPost);
 
+router.put("/post/:postId", [
+    body('title')
+        .trim()
+        .isLength({ min: 5, max: 255 }),
+    body('content')
+        .trim()
+        .isLength({ min: 5, max: 2048 })
+], feedController.updatePost);
 
 module.exports = router;
