@@ -5,15 +5,27 @@ const Post = require("../models/post");
 const { validationResult } = require("express-validator");
 const { listeners } = require("process");
 
-exports.getPosts = (req, res, next) => {
-    Post.find().then(posts => {
-        res.status(200).json({message: "Fetched posts successfully.",posts});    
-    }).catch(err => {
-        if(!err.statusCode)
-            err.statusCode = 500;
-        
-        next(err);
-    });
+exports.getPosts = async (req, res, next) => {
+
+    const currentPage = req.query.page || 1;
+    const perPage = 2;
+    try {
+        const totalItems = await Post.countDocuments();
+
+        const posts = await Post.find()
+            .skip((currentPage - 1) * perPage)
+            .limit(perPage);
+        if(!posts) {
+            let error = new Error("Posts not found.");
+            error.statusCode = 404;
+            throw error;
+        }
+        res.status(200).json({message: "Fetched posts successfully.", posts, totalItems});
+    } catch (error) {
+        if(!error.statusCode)
+            error.statusCode = 500;
+        next(error);
+    }
   
 };
 
@@ -26,7 +38,7 @@ exports.getPost = async (req, res, next) => {
             error.statusCode = 404;
             throw error;
         }
-        res.status(200).json({message: 'Post fetched.', post});
+        res.status(200).json({message: "Fetched post successfully.", post});
     } catch (error) {
         if(!error.statusCode)
             error.statusCode = 500;
