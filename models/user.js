@@ -7,7 +7,8 @@ const userSchema = new Schema({
     },
     email: {
         type: String,
-        require: true
+        require: true,
+        unique: true
     },
     password: {
         type: String,
@@ -15,7 +16,7 @@ const userSchema = new Schema({
     },
     status: {
         type: String,
-        require: true
+        default: "I am new!",
     },
     posts: [
         { type: Schema.Types.ObjectId, ref: "Post" }

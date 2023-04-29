@@ -4,7 +4,10 @@ const mongoose = require("mongoose");
 const app = express();
 const bodyParser = require("body-parser");
 const multer = require("multer");
+
 const feedRoutes = require("./routes/feed");
+const authRoutes = require("./routes/auth");
+
 require("dotenv").config();
 
 const fileStorage = multer.diskStorage({
@@ -41,11 +44,12 @@ app.use((req, res, next) => {
     next();
 });
 
+app.use("/auth", authRoutes);
 app.use("/feed", feedRoutes);
 
 app.use((error, req, res, next) => {
-    const { statusCode, message } = error;
-    res.status(statusCode).json({message});
+    const { statusCode, message, data } = error;
+    res.status(statusCode).json({ message, data });
 })
 
 mongoose
