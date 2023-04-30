@@ -7,6 +7,7 @@ const multer = require("multer");
 
 const feedRoutes = require("./routes/feed");
 const authRoutes = require("./routes/auth");
+const isAuth = require("../middlewares/is-auth");
 
 require("dotenv").config();
 
@@ -38,6 +39,8 @@ app.use("/images", express.static(path.join(__dirname, 'images')))
 
 // cors
 app.use((req, res, next) => {
+
+    // tipo de reqs e headers que vou usar.
     res.setHeader("Access-Control-Allow-Origin", "*");
     res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE");
     res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
@@ -45,7 +48,7 @@ app.use((req, res, next) => {
 });
 
 app.use("/auth", authRoutes);
-app.use("/feed", feedRoutes);
+app.use("/feed", isAuth, feedRoutes);
 
 app.use((error, req, res, next) => {
     const { statusCode, message, data } = error;
