@@ -7,7 +7,7 @@ const multer = require("multer");
 
 const feedRoutes = require("./routes/feed");
 const authRoutes = require("./routes/auth");
-const isAuth = require("../middlewares/is-auth");
+const isAuth = require("./middlewares/is-auth");
 
 require("dotenv").config();
 
@@ -48,7 +48,7 @@ app.use((req, res, next) => {
 });
 
 app.use("/auth", authRoutes);
-app.use("/feed", isAuth, feedRoutes);
+app.use("/feed", feedRoutes);
 
 app.use((error, req, res, next) => {
     const { statusCode, message, data } = error;

@@ -53,8 +53,8 @@ exports.login = async (req, res, next) => {
             },
             process.env.JWT_SECRET,
             { expiresIn: "1h" });
-        res.status(200).json({ token, userId: user._id.toString() });
 
+        res.status(200).json({ token, userId: user._id.toString() });
     } catch (error) {
         if(!error.statusCode) error.statusCode = 500;
         next(error);
