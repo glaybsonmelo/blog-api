@@ -5,6 +5,7 @@ const router = Router();
 
 const authController = require("../controllers/auth");
 const User = require("../models/user");
+const isAuth = require("../middlewares/is-auth");
 
 router.put("/signup", [
     body("name")
@@ -33,5 +34,13 @@ router.put("/signup", [
 ], authController.signup);
 
 router.post("/login", authController.login);
+
+router.get("/status", isAuth, authController.getUserStatus);
+
+router.patch("/status", [
+    body("status")
+        .trim()
+        .notEmpty()
+], isAuth, authController.updateUserStatus);
 
 module.exports = router;

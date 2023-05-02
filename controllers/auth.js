@@ -60,3 +60,47 @@ exports.login = async (req, res, next) => {
         next(error);
     }
 };
+
+exports.getUserStatus = async (req, res, next) => {
+    try {
+        const user = await User.findById(req.userId);
+        if(!user){
+            const error = new Error("User not found.");
+            res.statusCode = 404;
+            throw error;
+        }
+        res.status(200).json({status: user.status});
+    } catch (error) {
+        if(!error.statusCode){
+            error.statusCode = 500;
+            next(error);
+        }
+    }
+};
+
+exports.updateUserStatus = async (req, res, next) => {
+    const { status } = req.body;
+    const errors = validationResult(req);
+    try {
+        if(!errors.isEmpty()){
+            const error = new Error("Validation error");
+            error.statusCode = 401;
+            throw error;
+        }
+        console.log(status)
+        const user = await User.findById(req.userId);
+        if(!user){
+            const error = new Error("User not found.");
+            res.statusCode = 404;
+            throw error;
+        }
+        user.status = status;
+        await user.save();
+        res.status(200).json({message: "status updated.", status});
+    } catch (error) {
+        if(!error.statusCode){
+            error.statusCode = 500;
+            next(error);
+        }
+    }
+};
